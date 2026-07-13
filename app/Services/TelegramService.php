@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class TelegramService
+{
+    protected $token;
+
+    public function __construct()
+    {
+        $this->token = config('services.telegram.bot_token');
+    }
+
+    public function sendMessage($chatId, $message)
+    {
+        if (!$this->token || !$chatId) {
+            Log::warning("Telegram message not sent: Bot token or Chat ID is missing.");
+            return false;
+        }
+
+        try {
+            $response = Http::post("https://api.telegram.org/bot{$this->token}/sendMessage", [
+                'chat_id' => $chatId,
+                'text' => $message,
+                'parse_mode' => 'Markdown'
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::error("Telegram API Error: " . $e->getMessage());
+            return false;
+        }
+    }
+}

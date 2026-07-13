@@ -1,0 +1,83 @@
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --background: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --input-bg: rgba(15, 23, 42, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-indigo: #818cf8;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: #f8fafc;
+    min-height: 100vh;
+}
+
+.auth-container {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.form-control {
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    color: white !important;
+    padding: 12px;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.form-control:focus {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: none;
+}
+
+.input-group .btn-outline-secondary {
+    border: 1px solid var(--glass-border);
+    border-left: none;
+    background: var(--input-bg);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.input-group .btn-outline-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary {
+    background: var(--primary);
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.text-indigo {
+    color: var(--text-indigo);
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.invalid-feedback {
+    font-size: 0.85rem;
+}

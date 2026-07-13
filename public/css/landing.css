@@ -1,0 +1,214 @@
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary: #6366f1;
+    --accent: #f59e0b;
+    --background: #0f172a;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--background);
+    color: #f8fafc;
+    overflow-x: hidden;
+}
+
+.glass-nav {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.nav-link.active {
+    color: var(--primary) !important;
+    font-weight: 600;
+}
+
+.hero-section {
+    padding: 160px 0 100px;
+    background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.1), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.1), transparent 40%);
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.pricing-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.pricing-card.popular {
+    border: 2px solid var(--primary);
+    position: relative;
+}
+
+.pricing-card.popular::before {
+    content: 'POPULAR';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-outline-light {
+    border-color: var(--glass-border);
+    backdrop-filter: blur(4px);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-up {
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+    .glass-nav {
+        padding: 10px 0;
+    }
+    .navbar-toggler {
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: white;
+        border-radius: 8px;
+    }
+    .navbar-collapse {
+        background: #0f172a;
+        margin-top: 1rem;
+        padding: 1.5rem;
+        border-radius: 1.2rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        transition: all 0.3s ease-in-out;
+    }
+    .nav-link {
+        padding: 0.8rem 1rem !important;
+        border-radius: 8px;
+        margin-bottom: 0.2rem;
+    }
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .nav-link.active {
+        background: rgba(79, 70, 229, 0.1);
+    }
+    .navbar-nav {
+        padding-top: 10px;
+    }
+    .nav-item.ms-lg-3, .nav-item.ms-lg-2 {
+        margin-left: 0 !important;
+        margin-top: 10px;
+    }
+    .nav-item.ms-lg-3 .btn, .nav-item.ms-lg-2 .btn {
+        width: 100%;
+        padding: 12px;
+    }
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    .hero-section {
+        padding: 120px 0 60px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .hero-section p.lead {
+        font-size: 1.1rem !important;
+    }
+    .pricing-card.popular {
+        transform: scale(1.02);
+    }
+    .feature-card {
+        padding: 20px;
+    }
+    .mockup-content {
+        height: 200px !important;
+    }
+    .mockup-content i {
+        font-size: 6rem !important;
+    }
+}
+
+.hero-mockup {
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hero-mockup:hover {
+    transform: scale(1.02) translateY(-5px);
+}
