@@ -1,1 +1,0 @@
-System fixes: controller auth refactor, upload limits, storage junction, geolocation fix, ID card and QR redesign, i18n keys
