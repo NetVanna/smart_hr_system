@@ -68,12 +68,29 @@ class AttendanceController extends Controller
         }
 
         $withinGeofence = true;
-        if ($latitude && $longitude && $company->latitude && $company->longitude) {
+        $branchId = $employee->branch_id;
+        $targetLat = null;
+        $targetLng = null;
+        $targetRadius = 100;
+
+        // Prioritize employee's assigned branch GPS if active and configured
+        if ($employee->branch && $employee->branch->is_active && $employee->branch->latitude && $employee->branch->longitude) {
+            $targetLat = $employee->branch->latitude;
+            $targetLng = $employee->branch->longitude;
+            $targetRadius = $employee->branch->geofence_radius ?? 100;
+        } elseif ($company->latitude && $company->longitude) {
+            // Fallback to company central GPS
+            $targetLat = $company->latitude;
+            $targetLng = $company->longitude;
+            $targetRadius = $company->geofence_radius ?? 100;
+        }
+
+        if ($latitude && $longitude && $targetLat && $targetLng) {
             $distance = $this->calculateDistance(
                 $latitude, $longitude,
-                $company->latitude, $company->longitude
+                $targetLat, $targetLng
             );
-            $withinGeofence = $distance <= $company->geofence_radius;
+            $withinGeofence = $distance <= $targetRadius;
         }
 
         $photoPath = null;
@@ -90,6 +107,7 @@ class AttendanceController extends Controller
                 'company_id' => $employee->company_id,
             ],
             [
+                'branch_id' => $branchId,
                 'check_in' => $existing ? $existing->check_in : now(),
                 'check_out' => $existing ? now() : null,
                 'latitude' => $latitude,
@@ -106,8 +124,10 @@ class AttendanceController extends Controller
         if ($company->telegram_chat_id) {
             $status = $existing ? "Checked Out" : "Checked In";
             $geofenceStatus = $withinGeofence ? "✅ Within Range" : "❌ OUT OF RANGE";
+            $branchInfo = $employee->branch ? "🏢 Branch: {$employee->branch->name}\n" : "";
             $message = "🔔 *Attendance Alert*\n\n" .
                        "👤 Employee: {$employee->first_name} {$employee->last_name}\n" .
+                       $branchInfo .
                        "📍 Status: {$status}\n" .
                        "🎯 Geofence: {$geofenceStatus}\n" .
                        "📱 Method: App Verification\n" .

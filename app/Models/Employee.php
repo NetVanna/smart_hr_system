@@ -21,6 +21,7 @@ class Employee extends Model
         'email',
         'address',
         'department_id',
+        'branch_id',
         'position',
         'joining_date',
         'salary',
@@ -31,6 +32,11 @@ class Employee extends Model
         'emergency_contact_name',
         'emergency_contact_phone'
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function department()
     {

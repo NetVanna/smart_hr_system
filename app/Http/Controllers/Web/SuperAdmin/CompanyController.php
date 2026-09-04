@@ -9,8 +9,85 @@ class CompanyController extends Controller
 {
     public function index()
     {
-        $companies = \App\Models\Company::orderBy('created_at', 'desc')->get();
+        $companies = \App\Models\Company::withCount(['branches', 'employees'])
+            ->with(['users' => function($q) {
+                $q->where('role', 'Company Admin');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
         return view('superadmin.companies.index', compact('companies'));
+    }
+
+    public function impersonate(\App\Models\Company $company)
+    {
+        // 1. Find Company Admin or fallback to any user in the company (ignoring global company scopes)
+        $admin = \App\Models\User::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->where('role', 'Company Admin')
+            ->first()
+            ?? \App\Models\User::withoutGlobalScopes()
+            ->where('company_id', $company->id)
+            ->first();
+
+        // 2. If company has no users at all, auto-provision an admin account for it
+        if (!$admin) {
+            $admin = \App\Models\User::withoutGlobalScopes()->create([
+                'company_id'  => $company->id,
+                'name'        => $company->name . ' Admin',
+                'email'       => 'admin.' . $company->id . '@smarthr.kh',
+                'password'    => \Illuminate\Support\Facades\Hash::make('password123'),
+                'role'        => 'Company Admin',
+            ]);
+        }
+
+        // 3. Keep the original Super Admin ID in session (never overwrite if switching between tenants)
+        if (!session()->has('impersonated_by')) {
+            session()->put('impersonated_by', auth()->id());
+        }
+
+        // 4. Log in as tenant admin
+        auth()->login($admin);
+
+        return redirect()->route('dashboard')->with('success', "Support Mode: Logged in as Company Admin for \"{$company->name}\".");
+    }
+
+    public function leaveImpersonation()
+    {
+        if (session()->has('impersonated_by')) {
+            $superAdminId = session()->pull('impersonated_by');
+            $superAdmin = \App\Models\User::withoutGlobalScopes()->find($superAdminId);
+
+            if ($superAdmin) {
+                auth()->login($superAdmin);
+            }
+
+            return redirect()->route('superadmin.companies.index')->with('success', 'Returned to Super Admin Control Center.');
+        }
+
+        return redirect()->route('login');
+    }
+
+    public function extendTrial(Request $request, \App\Models\Company $company)
+    {
+        $days = (int) ($request->input('days', 14));
+
+        $company->update([
+            'subscription_status' => 'Trial',
+            'subscription_plan'   => '14-Day Free Trial',
+        ]);
+
+        \App\Models\Subscription::updateOrCreate(
+            ['company_id' => $company->id, 'status' => 'Trial'],
+            [
+                'plan'       => '14-Day Free Trial',
+                'price'      => 0.00,
+                'start_date' => now(),
+                'end_date'   => now()->addDays($days),
+            ]
+        );
+
+        return back()->with('success', "✅ Extended trial for \"{$company->name}\" by {$days} days.");
     }
 
     public function create()

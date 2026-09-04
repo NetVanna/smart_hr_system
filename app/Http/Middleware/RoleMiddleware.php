@@ -21,7 +21,21 @@ class RoleMiddleware
         }
 
         if (!in_array(auth()->user()->role, $roles)) {
-            return response()->json(['message' => 'Forbidden - Insufficient Permissions.'], 403);
+            // Auto-revert impersonation if the original Super Admin navigates back to a Super Admin route
+            if (in_array('Super Admin', $roles) && session()->has('impersonated_by')) {
+                $superAdminId = session()->pull('impersonated_by');
+                $superAdmin = \App\Models\User::withoutGlobalScopes()->find($superAdminId);
+                if ($superAdmin) {
+                    auth()->login($superAdmin);
+                    return $next($request);
+                }
+            }
+
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => 'Forbidden - Insufficient Permissions.'], 403);
+            }
+
+            return redirect()->route('dashboard')->with('error', 'Forbidden - Insufficient Permissions.');
         }
 
         return $next($request);

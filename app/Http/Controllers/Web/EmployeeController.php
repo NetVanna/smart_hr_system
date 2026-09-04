@@ -9,27 +9,29 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        $employees = \App\Models\Employee::with('department')->get();
+        $employees = \App\Models\Employee::with(['department', 'branch'])->get();
         return view('employees.index', compact('employees'));
     }
 
     public function create()
     {
         $departments = \App\Models\Department::all();
-        return view('employees.create', compact('departments'));
+        $branches = \App\Models\Branch::where('is_active', true)->get();
+        return view('employees.create', compact('departments', 'branches'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => 'required|string|unique:employees',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'nullable|email',
+            'employee_id'   => 'required|string|unique:employees',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'required|string|max:255',
+            'email'         => 'nullable|email',
             'department_id' => 'nullable|exists:departments,id',
-            'position' => 'nullable|string|max:255',
-            'joining_date' => 'nullable|date',
-            'salary' => 'nullable|numeric',
+            'branch_id'     => 'nullable|exists:branches,id',
+            'position'      => 'nullable|string|max:255',
+            'joining_date'  => 'nullable|date',
+            'salary'        => 'nullable|numeric',
             'profile_photo' => 'nullable|image|max:5120'
         ]);
 
@@ -45,20 +47,22 @@ class EmployeeController extends Controller
     public function edit(\App\Models\Employee $employee)
     {
         $departments = \App\Models\Department::all();
-        return view('employees.edit', compact('employee', 'departments'));
+        $branches = \App\Models\Branch::where('is_active', true)->get();
+        return view('employees.edit', compact('employee', 'departments', 'branches'));
     }
 
     public function update(Request $request, \App\Models\Employee $employee)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'nullable|email',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'required|string|max:255',
+            'email'         => 'nullable|email',
             'department_id' => 'nullable|exists:departments,id',
-            'position' => 'nullable|string|max:255',
-            'joining_date' => 'nullable|date',
-            'salary' => 'nullable|numeric',
-            'status' => 'required|in:Active,Inactive,On Leave,Terminated',
+            'branch_id'     => 'nullable|exists:branches,id',
+            'position'      => 'nullable|string|max:255',
+            'joining_date'  => 'nullable|date',
+            'salary'        => 'nullable|numeric',
+            'status'        => 'required|in:Active,Inactive,On Leave,Terminated',
             'profile_photo' => 'nullable|image|max:5120'
         ]);
 

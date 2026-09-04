@@ -47,6 +47,7 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('departments', \App\Http\Controllers\Web\DepartmentController::class);
+    Route::resource('branches', \App\Http\Controllers\Web\BranchController::class);
     Route::get('/employees/export', [\App\Http\Controllers\Web\EmployeeController::class, 'export'])->name('employees.export');
     Route::post('/employees/import', [\App\Http\Controllers\Web\EmployeeController::class, 'import'])->name('employees.import');
     Route::post('/employees', [\App\Http\Controllers\Web\EmployeeController::class, 'store'])->middleware('quota:employee')->name('employees.store');
@@ -55,7 +56,10 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::get('/employees/{employee}/id-card', [\App\Http\Controllers\Web\EmployeeController::class, 'showIdCard'])->name('employees.id_card');
     Route::get('/attendances', [\App\Http\Controllers\Web\AttendanceController::class, 'index'])->name('attendances.index');
     Route::resource('leaves', \App\Http\Controllers\Web\LeaveController::class);
+    Route::match(['get', 'post'], '/leaves/{leave}/approve', [\App\Http\Controllers\Web\LeaveController::class, 'quickApprove'])->name('leaves.quickApprove');
+    Route::match(['get', 'post'], '/leaves/{leave}/reject', [\App\Http\Controllers\Web\LeaveController::class, 'quickReject'])->name('leaves.quickReject');
     Route::resource('payrolls', \App\Http\Controllers\Web\PayrollController::class);
+    Route::get('/employees/{employee}/salary', [\App\Http\Controllers\Web\PayrollController::class, 'getEmployeeSalary'])->name('payrolls.employeeSalary');
     Route::resource('documents', \App\Http\Controllers\Web\DocumentController::class);
     Route::post('/assets', [\App\Http\Controllers\Web\AssetController::class, 'store'])->middleware('quota:asset')->name('assets.store');
     Route::resource('assets', \App\Http\Controllers\Web\AssetController::class)->except(['store']);
@@ -88,13 +92,20 @@ Route::middleware(['auth', 'subscription'])->group(function () {
     Route::post('/shifts/assign', [\App\Http\Controllers\Web\ShiftController::class, 'assign'])->name('shifts.assign');
     Route::get('/shifts/monitor', [\App\Http\Controllers\Web\ShiftController::class, 'monitor'])->name('shifts.monitor');
     Route::resource('tickets', \App\Http\Controllers\Web\TicketController::class);
-    Route::get('/settings/company', [\App\Http\Controllers\Web\CompanySettingsController::class, 'edit'])->name('settings.company.edit');
-    Route::put('/settings/company', [\App\Http\Controllers\Web\CompanySettingsController::class, 'update'])->name('settings.company.update');
+    Route::get('/settings/company', [\App\Http\Controllers\Web\CompanySettingsController::class, 'edit'])->middleware('role:Company Admin')->name('settings.company.edit');
+    Route::put('/settings/company', [\App\Http\Controllers\Web\CompanySettingsController::class, 'update'])->middleware('role:Company Admin')->name('settings.company.update');
     Route::get('/holidays', [\App\Http\Controllers\Web\HolidayController::class, 'index'])->name('holidays.index');
     Route::get('/subscription/payment', function() {
         return view('subscriptions.payment');
     })->name('subscription.payment');
     Route::post('/subscription/payment', [\App\Http\Controllers\Web\SuperAdmin\SubscriptionController::class, 'submitProof'])->name('subscription.payment.submit');
+
+    // Company Admin Dedicated Management
+    Route::middleware('role:Company Admin')->prefix('company')->name('company.')->group(function () {
+        Route::resource('users', \App\Http\Controllers\Web\Company\UserController::class);
+        Route::get('/billing', [\App\Http\Controllers\Web\Company\TenantBillingController::class, 'index'])->name('billing.index');
+        Route::post('/billing/submit-proof', [\App\Http\Controllers\Web\Company\TenantBillingController::class, 'submitProof'])->name('billing.submitProof');
+    });
 });
 
 // Super Admin Routes
@@ -102,11 +113,15 @@ Route::middleware(['auth', 'role:Super Admin'])->prefix('superadmin')->name('sup
     Route::get('/dashboard', [\App\Http\Controllers\Web\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('companies', \App\Http\Controllers\Web\SuperAdmin\CompanyController::class);
     Route::resource('subscriptions', \App\Http\Controllers\Web\SuperAdmin\SubscriptionController::class);
-    Route::patch('/subscriptions/{subscription}/approve', [\App\Http\Controllers\Web\SuperAdmin\SubscriptionController::class, 'approve'])->name('subscriptions.approve');
+    Route::match(['get', 'post', 'patch'], '/subscriptions/{subscription}/approve', [\App\Http\Controllers\Web\SuperAdmin\SubscriptionController::class, 'approve'])->name('subscriptions.approve');
     Route::patch('/tickets/{ticket}/status', [\App\Http\Controllers\Web\TicketController::class, 'updateStatus'])->name('tickets.updateStatus');
+    Route::match(['get', 'post'], '/companies/{company}/impersonate', [\App\Http\Controllers\Web\SuperAdmin\CompanyController::class, 'impersonate'])->name('companies.impersonate');
+    Route::post('/companies/{company}/extend-trial', [\App\Http\Controllers\Web\SuperAdmin\CompanyController::class, 'extendTrial'])->name('companies.extend-trial');
     Route::post('/companies/reset-password/{username}', [\App\Http\Controllers\Web\SuperAdmin\CompanyController::class, 'resetAdminPassword'])->name('companies.reset-password');
     Route::post('/companies/magic-link/{username}', [\App\Http\Controllers\Web\SuperAdmin\CompanyController::class, 'generateMagicLink'])->name('companies.magic-link');
 });
+
+Route::middleware('auth')->match(['get', 'post'], '/superadmin/impersonate/leave', [\App\Http\Controllers\Web\SuperAdmin\CompanyController::class, 'leaveImpersonation'])->name('superadmin.impersonate.leave');
 
 Route::get('/login/magic/{token}', [\App\Http\Controllers\Web\Auth\MagicLoginController::class, 'login'])->name('login.magic');
 

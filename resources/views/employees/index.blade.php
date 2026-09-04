@@ -29,6 +29,7 @@
                     <th class="border-0">{{ __('messages.emp_id') }}</th>
                     <th class="border-0">{{ __('messages.name_position') }}</th>
                     <th class="border-0">{{ __('messages.departments') }}</th>
+                    <th class="border-0">{{ __('messages.branch') }}</th>
                     <th class="border-0">{{ __('messages.status') }}</th>
                     <th class="border-0 pe-4 text-end">{{ __('messages.actions') }}</th>
                 </tr>
@@ -51,6 +52,15 @@
                         <small class="text-muted">{{ $employee->position ?? __('messages.no_position') }}</small>
                     </td>
                     <td>{{ optional($employee->department)->department_name ?? 'N/A' }}</td>
+                    <td>
+                        @if($employee->branch)
+                            <span class="badge rounded-pill bg-light text-dark border px-2 py-1">
+                                <i class="fa-solid fa-location-dot me-1 text-primary"></i> {{ $employee->branch->name }}
+                            </span>
+                        @else
+                            <span class="text-muted small">—</span>
+                        @endif
+                    </td>
                     <td>
                         <span class="badge {{ $employee->status === 'Active' ? 'bg-success' : ($employee->status === 'On Leave' ? 'bg-info' : 'bg-danger') }}">
                             {{ __('messages.' . strtolower(str_replace(' ', '_', $employee->status))) }}

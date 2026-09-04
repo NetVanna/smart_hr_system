@@ -30,4 +30,19 @@ class Company extends Model
     {
         return $this->hasMany(\App\Models\User::class);
     }
+
+    public function branches()
+    {
+        return $this->hasMany(\App\Models\Branch::class);
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(\App\Models\Employee::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(\App\Models\Subscription::class);
+    }
 }

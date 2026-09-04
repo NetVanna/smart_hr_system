@@ -124,17 +124,24 @@ class SubscriptionController extends Controller
 
         // 2. Activate company
         $company = $subscription->company;
-        $company->update([
-            'subscription_status' => 'Active',
-            'onboarding_step'     => 'complete',
-        ]);
+        if ($company) {
+            $company->update([
+                'subscription_plan'   => $subscription->plan,
+                'subscription_status' => 'Active',
+                'onboarding_step'     => 'completed',
+            ]);
+        }
 
         // 3. Log it
-        \Illuminate\Support\Facades\Log::info("Subscription approved for company #{$company->id} ({$company->name})");
+        $companyName = $company?->name ?? 'Company #' . $subscription->company_id;
+        \Illuminate\Support\Facades\Log::info("Subscription approved for company #{$subscription->company_id} ({$companyName})");
+
+        $admin = $company ? \App\Models\User::withoutGlobalScopes()->where('company_id', $company->id)->where('role', 'Company Admin')->first() : null;
+        $tgInfo = $admin?->telegram_username ? " (@{$admin->telegram_username})" : "";
 
         return redirect()
             ->route('superadmin.subscriptions.index')
-            ->with('success', "✅ Account for \"{$company->name}\" has been activated. Notify the client via Telegram (@{$company->users->where('role','Company Admin')->first()?->telegram_username}).");
+            ->with('success', "✅ Account for \"{$companyName}\" has been activated. Notify client via Telegram{$tgInfo}.");
     }
 }
 

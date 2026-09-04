@@ -68,12 +68,13 @@ class AttendanceController extends Controller
 
         // Create new check-in
         $attendance = Attendance::create([
-            'company_id' => $employee->company_id,
+            'company_id'  => $employee->company_id,
+            'branch_id'   => $employee->branch_id,
             'employee_id' => $employee->id,
-            'date' => $today,
-            'check_in' => $currentTime,
-            'method' => 'QR',
-            'location' => $request->location
+            'date'        => $today,
+            'check_in'    => $currentTime,
+            'method'      => 'QR',
+            'location'    => $request->location
         ]);
 
         $this->sendTelegramNotification($employee, "Checked in", $currentTime, $request->location);

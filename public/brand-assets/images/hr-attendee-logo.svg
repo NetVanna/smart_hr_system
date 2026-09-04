@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="facetTopLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4D8DFF" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="facetTopRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+    <linearGradient id="facetRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="facetBottomRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E40AF" />
+      <stop offset="100%" stop-color="#172554" />
+    </linearGradient>
+    <linearGradient id="facetBottomLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+    <linearGradient id="facetLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Hexagon Outer Shape with subtle facets replicating the HR Attendee isometric 3D cube -->
+  <g transform="translate(50, 50)">
+    <!-- Top Left Facet -->
+    <polygon points="0,0 -43.3,-25 0,-50" fill="url(#facetTopLeft)" />
+    <!-- Top Right Facet -->
+    <polygon points="0,0 0,-50 43.3,-25" fill="url(#facetTopRight)" />
+    <!-- Right Facet -->
+    <polygon points="0,0 43.3,-25 43.3,25" fill="url(#facetRight)" />
+    <!-- Bottom Right Facet -->
+    <polygon points="0,0 43.3,25 0,50" fill="url(#facetBottomRight)" />
+    <!-- Bottom Left Facet -->
+    <polygon points="0,0 0,50 -43.3,25" fill="url(#facetBottomLeft)" />
+    <!-- Left Facet -->
+    <polygon points="0,0 -43.3,25 -43.3,-25" fill="url(#facetLeft)" />
+
+    <!-- Isometric Inner Cube Cutout Highlight for crisp 3D look -->
+    <polygon points="0,-22 19,-11 0,0 -19,-11" fill="#FFFFFF" fill-opacity="0.35" />
+    <polygon points="0,0 19,-11 19,11 0,22" fill="#2563EB" fill-opacity="0.2" />
+    <polygon points="0,0 0,22 -19,11 -19,-11" fill="#1E3A8A" fill-opacity="0.3" />
+  </g>
+</svg>

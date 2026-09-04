@@ -49,6 +49,28 @@
                     </div>
 
                     <hr class="my-4">
+                    <h6 class="text-primary mb-3"><i class="fa-solid fa-coins me-1"></i> Currency & Exchange Rate (Cambodia)</h6>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Base Currency</label>
+                            <select name="base_currency" class="form-select">
+                                <option value="USD" {{ ($company->base_currency ?? 'USD') === 'USD' ? 'selected' : '' }}>USD ($ - United States Dollar)</option>
+                                <option value="KHR" {{ ($company->base_currency ?? '') === 'KHR' ? 'selected' : '' }}>KHR (៛ - Khmer Riel)</option>
+                            </select>
+                            <small class="text-muted">Primary currency used for salary and expense calculations.</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Exchange Rate (1 USD = ? KHR)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">៛</span>
+                                <input type="number" step="1" name="exchange_rate" class="form-control" value="{{ $company->exchange_rate ?? 4100 }}" required>
+                            </div>
+                            <small class="text-muted">Standard rate in Cambodia (typically 4,100 KHR = $1 USD).</small>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
                     <h6 class="text-primary mb-3">{{ __('messages.localization_alerts') }}</h6>
 
                     <div class="row">

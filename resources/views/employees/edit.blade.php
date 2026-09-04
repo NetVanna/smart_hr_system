@@ -15,12 +15,12 @@
 
             <h5 class="mb-3 border-bottom pb-2">{{ __('messages.basic_info') }}</h5>
             <div class="row mb-3">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label">{{ __('messages.emp_id') }}</label>
                     <input type="text" class="form-control" value="{{ $employee->employee_id }}" disabled>
                     <div class="form-text">{{ __('messages.id_readonly') }}</div>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label">{{ __('messages.departments') }}</label>
                     <select name="department_id" class="form-select @error('department_id') is-invalid @enderror">
                         <option value="">{{ __('messages.select_dept') }}</option>
@@ -29,6 +29,16 @@
                         @endforeach
                     </select>
                     @error('department_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ __('messages.branch') }}</label>
+                    <select name="branch_id" class="form-select @error('branch_id') is-invalid @enderror">
+                        <option value="">{{ __('messages.select_branch') }}</option>
+                        @foreach($branches as $branch)
+                            <option value="{{ $branch->id }}" {{ (old('branch_id', $employee->branch_id) == $branch->id) ? 'selected' : '' }}>{{ $branch->name }} ({{ $branch->code ?? 'HQ' }})</option>
+                        @endforeach
+                    </select>
+                    @error('branch_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
             </div>
 

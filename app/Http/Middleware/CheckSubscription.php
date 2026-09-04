@@ -12,19 +12,21 @@ class CheckSubscription
     {
         $user = auth()->user();
 
-        if ($user && $user->role !== 'Super Admin') {
+        if ($user && $user->role !== 'Super Admin' && !session()->has('impersonated_by')) {
             // Always allow access to onboarding and subscription routes
-            if ($request->routeIs('onboarding.*') || $request->routeIs('subscription.*') || $request->routeIs('logout')) {
+            if ($request->routeIs('onboarding.*') || $request->routeIs('subscription.*') || $request->routeIs('logout') || $request->routeIs('superadmin.impersonate.leave')) {
                 return $next($request);
             }
 
             $company = $user->company;
 
-            // If company is in onboarding, redirect to current step
-            if ($company && $company->subscription_status !== 'Active') {
+            // If company is not active or in trial, check onboarding step
+            if ($company && !in_array($company->subscription_status, ['Active', 'Trial'])) {
                 $step = $company->onboarding_step ?? 'introduction';
-                return redirect()->route('onboarding.' . $step)
-                    ->with('warning', 'Please complete your account setup first.');
+                if (!in_array($step, ['completed', 'complete'])) {
+                    return redirect()->route('onboarding.' . $step)
+                        ->with('warning', 'Please complete your account setup first.');
+                }
             }
         }
 

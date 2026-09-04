@@ -73,11 +73,11 @@ class ShiftController extends Controller
 
     public function monitor()
     {
-        // Phase 17.2: Live Attendance Monitor
+        // Live Attendance Monitor for HR Manager
         $today = Carbon::today()->toDateString();
-        $attendances = \App\Models\Attendance::whereDate('check_in', $today)
-            ->with('employee')
-            ->latest()
+        $attendances = \App\Models\Attendance::whereDate('date', $today)
+            ->with(['employee.branch'])
+            ->latest('check_in')
             ->get();
             
         return view('shifts.monitor', compact('attendances'));

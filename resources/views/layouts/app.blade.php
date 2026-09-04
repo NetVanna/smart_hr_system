@@ -21,6 +21,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @endif
 
+    <!-- Attendee Design System Theme -->
+    <link rel="stylesheet" href="{{ asset('css/theme-attendee.css') }}">
+
     <style>
         /* ── Base font ── */
         @if(app()->getLocale() === 'kh')
@@ -48,30 +51,35 @@
         }
         @endif
 
-        /* ── Layout ── */
-        body { background-color: #f4f6f9; }
-        .sidebar { min-height: 100vh; background-color: #343a40; }
-        .sidebar a { color: #c2c7d0; text-decoration: none; padding: 10px 15px; display: block; }
-        .sidebar a:hover, .sidebar a.active { color: #fff; background-color: #495057; }
-        .content { padding: 20px; }
-        .navbar { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.04); }
+        .sidebar-wrapper {
+            width: 270px;
+            flex-shrink: 0;
+        }
+        .main-wrapper {
+            flex-grow: 1;
+            min-width: 0;
+            background-color: var(--bg-canvas);
+            min-height: 100vh;
+        }
         .lang-flag { font-size: 1rem; }
     </style>
     @stack('styles')
 </head>
 <body>
     @auth
-    <div class="d-flex">
+    <div class="d-flex min-vh-100">
         <!-- Sidebar -->
-        <div class="sidebar col-md-2 p-0 d-none d-md-block">
-            <div class="text-center py-3 text-white">
-                <div class="mb-2">
-                    <img src="{{ asset('brand-assets/images/logo.png') }}" alt="{{ config('app.name', 'SmartHR') }} Logo" style="height: 50px;">
+        <aside class="sidebar sidebar-wrapper p-0 d-none d-lg-block">
+            <div class="brand-header d-flex align-items-center gap-3">
+                <div class="brand-logo-wrap">
+                    <img src="{{ asset('brand-assets/images/hr-attendee-logo.svg') }}" alt="HR Attendee Logo" style="height: 30px; width: 30px;">
                 </div>
-                <h4 class="mb-0">{{ config('app.name', 'SmartHR') }}</h4>
-                <small>{{ auth()->user()->company->name ?? __('messages.system_admin') }}</small>
+                <div class="d-flex flex-column">
+                    <span class="brand-title">HR Attendee</span>
+                    <span class="brand-subtitle text-truncate" style="max-width: 155px;">{{ auth()->user()->company->name ?? __('messages.system_admin') }}</span>
+                </div>
             </div>
-            <ul class="nav flex-column mt-3">
+            <ul class="nav flex-column mt-2 pb-5">
                 {{-- ============ Company Admin & HR Manager Sidebar (Grouped Step-by-Step) ============ --}}
                 @if(auth()->user()->role === 'Company Admin' || auth()->user()->role === 'HR Manager')
                 {{-- Step 1: Dashboard --}}
@@ -80,22 +88,27 @@
                         <i class="fa-solid fa-gauge me-2"></i> {{ __('messages.dashboard') }}
                         <span class="ms-auto d-flex gap-1">
                             @if(($sidebarStats['pendingLeaves'] ?? 0) > 0)
-                                <span class="badge rounded-pill bg-danger" style="font-size: 0.65rem;">{{ $sidebarStats['pendingLeaves'] }} {{ __('messages.leaves') }}</span>
+                                <span class="badge badge-pill-counter bg-danger">{{ $sidebarStats['pendingLeaves'] }} {{ __('messages.leaves') }}</span>
                             @endif
                             @if(($sidebarStats['openTickets'] ?? 0) > 0)
-                                <span class="badge rounded-pill bg-warning text-dark" style="font-size: 0.65rem;">{{ $sidebarStats['openTickets'] }} {{ __('messages.tickets') }}</span>
+                                <span class="badge badge-pill-counter bg-warning text-dark">{{ $sidebarStats['openTickets'] }} {{ __('messages.tickets') }}</span>
                             @endif
                         </span>
                     </a>
                 </li>
 
                 {{-- Step 2: Company Setup --}}
-                <li class="mt-3 px-3">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em;">{{ __('messages.company_setup') }}</small>
+                <li class="sidebar-nav-section">
+                    {{ __('messages.company_setup') }}
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('departments.index') }}" class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}">
                         <i class="fa-solid fa-building me-2"></i> {{ __('messages.departments') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('branches.index') }}" class="nav-link {{ request()->routeIs('branches.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-map-location-dot me-2"></i> {{ __('messages.branches') }}
                     </a>
                 </li>
                 <li class="nav-item">
@@ -108,10 +121,22 @@
                         <i class="fa-solid fa-calendar-check me-2"></i> {{ __('messages.public_holidays') }}
                     </a>
                 </li>
+                @if(auth()->user()->role === 'Company Admin')
+                <li class="nav-item">
+                    <a href="{{ route('company.users.index') }}" class="nav-link {{ request()->routeIs('company.users.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-users-gear me-2"></i> {{ __('messages.team_access') ?? 'Team & Access' }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('company.billing.index') }}" class="nav-link {{ request()->routeIs('company.billing.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-credit-card me-2"></i> {{ __('messages.subscription_billing') ?? 'Subscription & Billing' }}
+                    </a>
+                </li>
+                @endif
 
                 {{-- Step 3: Employee Management --}}
-                <li class="mt-3 px-3">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em;">{{ __('messages.employee_management') }}</small>
+                <li class="sidebar-nav-section">
+                    {{ __('messages.employee_management') }}
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('employees.index') }}" class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }}">
@@ -130,8 +155,8 @@
                 </li>
 
                 {{-- Step 4: Daily Operations --}}
-                <li class="mt-3 px-3">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em;">{{ __('messages.daily_operations') }}</small>
+                <li class="sidebar-nav-section">
+                    {{ __('messages.daily_operations') }}
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('attendances.index') }}" class="nav-link {{ request()->routeIs('attendances.*') ? 'active' : '' }}">
@@ -155,8 +180,8 @@
                 </li>
 
                 {{-- Step 5: Leave & Payroll --}}
-                <li class="mt-3 px-3">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em;">{{ __('messages.leave_payroll') }}</small>
+                <li class="sidebar-nav-section">
+                    {{ __('messages.leave_payroll') }}
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('leaves.index') }}" class="nav-link {{ request()->routeIs('leaves.*') ? 'active' : '' }}">
@@ -170,8 +195,8 @@
                 </li>
 
                 {{-- Step 6: Development & Support --}}
-                <li class="mt-3 px-3">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em;">{{ __('messages.development_support') }}</small>
+                <li class="sidebar-nav-section">
+                    {{ __('messages.development_support') }}
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('evaluations.index') }}" class="nav-link {{ request()->routeIs('evaluations.*') ? 'active' : '' }}">
@@ -236,8 +261,8 @@
                         <i class="fa-solid fa-gauge me-2"></i> {{ __('messages.dashboard') }}
                     </a>
                 </li>
-                <li class="mt-3 px-3">
-                    <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 0.08em;">{{ __('messages.system_management') }}</small>
+                <li class="sidebar-nav-section">
+                    {{ __('messages.system_management') }}
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('superadmin.companies.index') }}" class="nav-link {{ request()->routeIs('superadmin.companies.*') ? 'active' : '' }}">
@@ -266,17 +291,45 @@
                 </li>
                 @endif
             </ul>
-        </div>
+        </aside>
 
-        <!-- Main Content -->
-        <div class="w-100">
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper d-flex flex-column">
+            @if(session()->has('impersonated_by'))
+            <!-- Support Impersonation Banner -->
+            <div class="bg-warning text-dark py-2 px-4 d-flex justify-content-between align-items-center shadow-sm" style="background-color: #fef3c7 !important; border-bottom: 1px solid #fcd34d; font-size: 0.88rem;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark border border-dark-subtle fw-bold text-uppercase" style="font-size: 0.72rem;">{{ __('messages.support_mode') }}</span>
+                    <span>{{ __('messages.impersonating_msg') }}: <strong>{{ auth()->user()->name }}</strong> ({{ auth()->user()->company?->name }}).</span>
+                </div>
+                <a href="{{ route('superadmin.impersonate.leave') }}" class="btn btn-sm btn-dark rounded-pill px-3 py-1 fw-bold" style="font-size: 0.78rem;">
+                    <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> {{ __('messages.return_to_superadmin') }}
+                </a>
+            </div>
+            @endif
+
             <!-- Navbar -->
-            <nav class="navbar navbar-expand-lg px-4">
-                <button class="btn btn-outline-secondary d-md-none"><i class="fa-solid fa-bars"></i></button>
-                <div class="ms-auto d-flex align-items-center">
-                    <div class="dropdown me-3">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fa-solid fa-globe me-1"></i>
+            <nav class="navbar navbar-expand px-4 sticky-top">
+                <button class="btn btn-icon-circle d-lg-none me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="d-none d-sm-flex flex-column">
+                    <span class="fw-bold text-dark fs-6">@yield('title', __('messages.dashboard'))</span>
+                    <small class="text-muted" style="font-size: 0.76rem;">{{ now()->format('l, F j, Y') }}</small>
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <!-- Notification Bell -->
+                    <a href="{{ route('tickets.index') }}" class="btn-icon-circle text-decoration-none position-relative" title="Notifications">
+                        <i class="fa-regular fa-bell"></i>
+                        @if(($sidebarStats['openTickets'] ?? 0) > 0 || ($sidebarStats['pendingLeaves'] ?? 0) > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="transform: translate(-10px, 10px) !important;"></span>
+                        @endif
+                    </a>
+
+                    <!-- Language Selector -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-globe me-1 text-primary"></i>
                             @if(app()->getLocale() === 'kh')
                                 &#x1F1F0;&#x1F1ED; KH
                             @else
@@ -298,11 +351,34 @@
                             </li>
                         </ul>
                     </div>
-                    <span class="me-3">{{ auth()->user()->name }} ({{ auth()->user()->role }})</span>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-sign-out-alt"></i> {{ __('messages.logout') }}</button>
-                    </form>
+
+                    <!-- User Profile & Quick Logout -->
+                    <div class="dropdown">
+                        <div class="user-profile-badge dropdown-toggle" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <div class="d-none d-md-flex flex-column text-start me-2">
+                                <span class="fw-semibold text-dark text-truncate" style="max-width: 120px; font-size: 0.84rem; line-height: 1.2;">{{ auth()->user()->name }}</span>
+                                <span class="badge bg-primary" style="font-size: 0.65rem; padding: 2px 6px;">{{ auth()->user()->role }}</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.68rem;"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                            <li class="px-3 py-2 border-bottom">
+                                <p class="mb-0 fw-bold text-dark">{{ auth()->user()->name }}</p>
+                                <small class="text-muted">{{ auth()->user()->email }}</small>
+                            </li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" class="p-1">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-arrow-right-from-bracket"></i> {{ __('messages.logout') }}
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
 
